@@ -11,12 +11,14 @@ from __future__ import annotations
 from typing import Any
 
 from app.agent.tools.base import Tool
+from app.agent.tools.draft_decision import DraftDecisionTool
 from app.agent.tools.get_patient import GetPatientTool
 from app.agent.tools.search_policy import SearchPolicyTool
 
 REGISTRY: list[Tool[Any]] = [
     GetPatientTool(),
     SearchPolicyTool(),
+    DraftDecisionTool(),
 ]
 
 BY_NAME: dict[str, Tool[Any]] = {tool.name: tool for tool in REGISTRY}

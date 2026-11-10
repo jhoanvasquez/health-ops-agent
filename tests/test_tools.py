@@ -94,7 +94,7 @@ def test_every_registered_tool_has_complete_description() -> None:
 
 
 def test_registry_is_indexed_by_name() -> None:
-    assert set(BY_NAME) == {"get_patient", "search_policy"}
+    assert set(BY_NAME) == {"get_patient", "search_policy", "draft_decision"}
 
 
 if __name__ == "__main__":  # allow running without pytest-asyncio
