@@ -22,6 +22,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
+# Make the repo root importable whether or not the package is installed, so
+# running `python scripts/check_descriptions.py` directly behaves like CI.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+_REGISTRY_MODULE = "app.agent.tools.registry"
+
 TOOL_REQUIRED_PHRASES = ("use when", "do not use", "input", "returns")
 TOOL_MIN_LEN = 120
 SKILL_MIN_LEN = 200
@@ -35,8 +42,12 @@ def load_tools() -> list[tuple[str, str]]:
     """
     try:
         from app.agent.tools.registry import REGISTRY  # type: ignore[import-not-found]
-    except ModuleNotFoundError:
-        return []
+    except ModuleNotFoundError as exc:
+        # Tolerate ONLY "the registry does not exist yet"; a missing dependency
+        # inside the registry's import chain is a real failure and must surface.
+        if exc.name == _REGISTRY_MODULE:
+            return []
+        raise
     return [(tool.name, tool.description) for tool in REGISTRY]
 
 

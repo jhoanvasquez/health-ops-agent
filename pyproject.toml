@@ -16,8 +16,9 @@ dependencies = [
   "uvicorn[standard]>=0.32",
   "pydantic>=2.9",
   "pydantic-settings>=2.6",
-  # LLM
+  # LLM & embeddings
   "anthropic>=0.40",
+  "voyageai>=0.3",
   # Database
   "sqlalchemy[asyncio]>=2.0.35",
   "asyncpg>=0.30",

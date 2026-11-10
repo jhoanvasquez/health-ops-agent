@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     anthropic_api_key: str = Field(default="", repr=False)
     llm_model: str = "claude-opus-4-8"
 
+    # Embeddings (Voyage AI — see ADR 003)
+    voyage_api_key: str = Field(default="", repr=False)
+
     # Infrastructure
     database_url: str = "postgresql+asyncpg://health:change-me-locally@postgres:5432/health_ops"
     rabbitmq_url: str = "amqp://health:change-me-locally@rabbitmq:5672/"
