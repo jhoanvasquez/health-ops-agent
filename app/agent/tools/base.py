@@ -10,14 +10,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
 from app.agent.tools.ports import Embedder, PatientRepository, PolicyStore
 from app.llm.types import ToolSpec
-
-PayloadT = TypeVar("PayloadT", bound=BaseModel)
 
 
 @dataclass
@@ -36,7 +34,7 @@ class ToolError(BaseModel):
     retryable: bool = False
 
 
-class Tool(ABC, Generic[PayloadT]):
+class Tool[PayloadT: BaseModel](ABC):
     """A deterministic, testable function the model may call by name."""
 
     name: str

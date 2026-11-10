@@ -70,7 +70,7 @@ warn_redundant_casts = true
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["pgvector.*", "aio_pika.*", "fhir.*", "pdfplumber.*", "langfuse.*"]
+module = ["pgvector.*", "aio_pika.*", "fhir.*", "pdfplumber.*", "langfuse.*", "voyageai.*", "fitz"]
 ignore_missing_imports = true
 
 # ──────────────────────────────── Pytest ──────────────────────────────

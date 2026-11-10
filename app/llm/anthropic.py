@@ -6,7 +6,7 @@ Anthropic Messages API. The harness never sees an Anthropic SDK type.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from anthropic import AsyncAnthropic
 
@@ -29,12 +29,14 @@ class AnthropicClient:
         tools: list[ToolSpec],
         max_tokens: int,
     ) -> LLMResponse:
+        # Provider boundary: our helpers build the SDK's TypedDict shapes as plain
+        # dicts (valid at runtime); cast past the strict param unions here only.
         response = await self._client.messages.create(
             model=self._model,
             max_tokens=max_tokens,
             system=system,
-            messages=_to_anthropic_messages(messages),
-            tools=[_to_anthropic_tool(t) for t in tools],
+            messages=cast(Any, _to_anthropic_messages(messages)),
+            tools=cast(Any, [_to_anthropic_tool(t) for t in tools]),
         )
         return _from_anthropic_response(response)
 
@@ -82,9 +84,7 @@ def _from_anthropic_response(response: Any) -> LLMResponse:
         if block.type == "text":
             text_parts.append(block.text)
         elif block.type == "tool_use":
-            tool_calls.append(
-                ToolCall(id=block.id, name=block.name, arguments=dict(block.input))
-            )
+            tool_calls.append(ToolCall(id=block.id, name=block.name, arguments=dict(block.input)))
     return LLMResponse(
         text="".join(text_parts),
         tool_calls=tool_calls,

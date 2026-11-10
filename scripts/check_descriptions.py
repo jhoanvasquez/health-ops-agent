@@ -41,7 +41,7 @@ def load_tools() -> list[tuple[str, str]]:
     registry passes, and the check grows as tools land.
     """
     try:
-        from app.agent.tools.registry import REGISTRY  # type: ignore[import-not-found]
+        from app.agent.tools.registry import REGISTRY
     except ModuleNotFoundError as exc:
         # Tolerate ONLY "the registry does not exist yet"; a missing dependency
         # inside the registry's import chain is a real failure and must surface.
@@ -75,7 +75,9 @@ def check_skill(skill_md: Path) -> list[str]:
     if not description:
         return [f"skill '{rel}': missing `description:` in frontmatter"]
     if len(description) < SKILL_MIN_LEN:
-        return [f"skill '{rel}': description too short ({len(description)} < {SKILL_MIN_LEN} chars)"]
+        return [
+            f"skill '{rel}': description too short ({len(description)} < {SKILL_MIN_LEN} chars)"
+        ]
     return []
 
 

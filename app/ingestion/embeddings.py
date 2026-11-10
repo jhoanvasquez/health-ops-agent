@@ -28,11 +28,11 @@ class VoyageEmbedder:
     ) -> None:
         self._model = model
         self._input_type = input_type
-        self._client = voyageai.AsyncClient(api_key=api_key or settings.voyage_api_key)
+        # voyageai exposes AsyncClient at runtime but does not re-export it in __all__.
+        self._client = voyageai.AsyncClient(  # type: ignore[attr-defined]
+            api_key=api_key or settings.voyage_api_key
+        )
 
     async def embed(self, text: str) -> list[float]:
-        result = await self._client.embed(
-            [text], model=self._model, input_type=self._input_type
-        )
-        vector: list[float] = result.embeddings[0]
-        return vector
+        result = await self._client.embed([text], model=self._model, input_type=self._input_type)
+        return [float(value) for value in result.embeddings[0]]

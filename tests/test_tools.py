@@ -80,9 +80,7 @@ async def test_search_policy_empty_is_empty_list() -> None:
 
 async def test_invalid_input_returns_non_retryable_error() -> None:
     ctx = make_ctx()
-    result = await invoke(
-        SearchPolicyTool(), {"query": "x", "policy_id": "p1", "top_k": 99}, ctx
-    )
+    result = await invoke(SearchPolicyTool(), {"query": "x", "policy_id": "p1", "top_k": 99}, ctx)
     assert isinstance(result, ToolError)
     assert result.retryable is False
 

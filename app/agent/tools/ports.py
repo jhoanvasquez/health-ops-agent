@@ -33,8 +33,7 @@ class PatientRepository(Protocol):
 class Embedder(Protocol):
     """Turns text into an embedding vector."""
 
-    async def embed(self, text: str) -> list[float]:
-        ...
+    async def embed(self, text: str) -> list[float]: ...
 
 
 class PolicyStore(Protocol):

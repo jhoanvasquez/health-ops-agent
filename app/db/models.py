@@ -16,8 +16,8 @@ from decimal import Decimal
 from typing import Any
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy import Enum as SAEnum
+from sqlalchemy import ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -27,7 +27,7 @@ from app.db.base import Base
 EMBEDDING_DIM = 1024  # voyage-3 default; finalized in the ingestion change
 
 
-class CaseState(str, enum.Enum):
+class CaseState(enum.StrEnum):
     """Explicit, persisted case lifecycle."""
 
     received = "received"
@@ -52,9 +52,7 @@ class Case(Base):
     # Final DecisionPacket (see app/agent/outputs.py), null until decided.
     packet: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now()
-    )
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
     audit_entries: Mapped[list[AuditEntry]] = relationship(
         back_populates="case",
