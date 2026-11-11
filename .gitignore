@@ -59,6 +59,7 @@ secrets/
 # ─────────────────────────────────────────────────────────────
 data/generated/
 data/synthea/
+data/policies/
 *.sqlite
 *.db
 

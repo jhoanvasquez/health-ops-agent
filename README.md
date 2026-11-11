@@ -62,16 +62,20 @@ service), then brings up the API, the agent worker, Postgres (pgvector), RabbitM
 and Redis.
 
 ```bash
-docker compose up --build
+# generate a synthetic policy PDF that matches the patient-001 fixture
+python data/make_sample_policy.py
 
-# load a payer policy PDF (synthetic / non-PHI only) into pgvector
-python -m app.ingestion.ingest_cli path/to/policy.pdf sample-policy policy-doc-1
+docker compose up -d --build
+
+# ingest the policy into pgvector (run inside the worker: it has the DB + data volume)
+docker compose exec worker \
+  python -m app.ingestion.ingest_cli data/policies/sample-policy.pdf sample-policy policy-doc-1
 
 # submit a synthetic case (patient fixture lives in data/patients/)
 curl -X POST localhost:8000/cases -H 'content-type: application/json' \
   -d '{"idempotency_key":"demo-1","policy_id":"sample-policy","patient_ref":"patient-001"}'
 
-# poll for the decision
+# poll for the decision (use the case_id from the response above)
 curl localhost:8000/cases/<case_id>
 ```
 
