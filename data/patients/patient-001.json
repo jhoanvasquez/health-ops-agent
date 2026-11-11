@@ -1,0 +1,60 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-001",
+        "gender": "female",
+        "birthDate": "1979-05-14",
+        "name": [{ "family": "Synthetic", "given": ["Test"] }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-knee-oa",
+        "subject": { "reference": "Patient/patient-001" },
+        "code": {
+          "text": "Osteoarthritis of the right knee",
+          "coding": [{ "system": "http://snomed.info/sct", "code": "239873007" }]
+        },
+        "onsetDateTime": "2024-01-10",
+        "clinicalStatus": { "text": "active" }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "proc-physical-therapy",
+        "subject": { "reference": "Patient/patient-001" },
+        "status": "completed",
+        "code": { "text": "Physical therapy, right knee (6 weeks)" },
+        "performedPeriod": { "start": "2024-02-01", "end": "2024-03-15" },
+        "outcome": { "text": "No sustained improvement; persistent pain and functional limitation" }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-pain-score",
+        "subject": { "reference": "Patient/patient-001" },
+        "status": "final",
+        "code": { "text": "Knee pain score (0-10)" },
+        "valueQuantity": { "value": 7, "unit": "score" },
+        "effectiveDateTime": "2024-03-20"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "req-mri-knee",
+        "subject": { "reference": "Patient/patient-001" },
+        "status": "active",
+        "intent": "order",
+        "code": { "text": "MRI of the right knee without contrast" }
+      }
+    }
+  ]
+}

@@ -50,10 +50,41 @@ This project uses synthetic data only. For a real production deployment you woul
 ## Development
 
 ```bash
-docker compose up            # API + Postgres + RabbitMQ + Redis
-pytest                       # tests
-python evals/run_evals.py    # evaluation harness
+cp .env.example .env         # fill in ANTHROPIC_API_KEY and VOYAGE_API_KEY
+pip install -e ".[dev]"      # local tooling
+ruff check . && mypy app evals scripts && pytest   # the CI gate
 ```
+
+### Run the full slice
+
+`docker compose up` starts everything: it applies migrations (one-shot `migrate`
+service), then brings up the API, the agent worker, Postgres (pgvector), RabbitMQ,
+and Redis.
+
+```bash
+docker compose up --build
+
+# load a payer policy PDF (synthetic / non-PHI only) into pgvector
+python -m app.ingestion.ingest_cli path/to/policy.pdf sample-policy policy-doc-1
+
+# submit a synthetic case (patient fixture lives in data/patients/)
+curl -X POST localhost:8000/cases -H 'content-type: application/json' \
+  -d '{"idempotency_key":"demo-1","policy_id":"sample-policy","patient_ref":"patient-001"}'
+
+# poll for the decision
+curl localhost:8000/cases/<case_id>
+```
+
+### End-to-end test
+
+With the stack up, a policy ingested, and the patient fixture in place:
+
+```bash
+RUN_INTEGRATION=1 pytest tests/integration -q
+```
+
+> The evaluation harness (`evals/`) is the next change — a versioned case dataset
+> with accuracy, citation-faithfulness, escalation, and tool-selection metrics.
 
 ## License
 
