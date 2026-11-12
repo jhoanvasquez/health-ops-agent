@@ -1,0 +1,154 @@
+<mxfile host="app.diagrams.net" agent="drawio-diagram-generator">
+  <diagram name="Health Operations Agent" id="health-ops-agent-01">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2020" pageHeight="640" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Zones -->
+        <mxCell id="z_client" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;dashed=1;dashPattern=8 6;opacity=40;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#0288D1;" value="Reviewers &amp; intake">
+          <mxGeometry x="20" y="40" width="250" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="z_api" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;dashed=1;dashPattern=8 6;opacity=40;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#388E3C;" value="API">
+          <mxGeometry x="300" y="120" width="240" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="z_msg" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2F1;strokeColor=#00897B;dashed=1;dashPattern=8 6;opacity=40;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#00897B;" value="Messaging — RabbitMQ">
+          <mxGeometry x="580" y="60" width="240" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="z_worker" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;dashed=1;dashPattern=8 6;opacity=40;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#7B1FA2;" value="Agent worker (own harness, no framework)">
+          <mxGeometry x="860" y="60" width="540" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="z_ext" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;dashed=1;dashPattern=8 6;opacity=40;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#455A64;" value="External AI (behind swappable ports)">
+          <mxGeometry x="1700" y="90" width="240" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="z_data" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;dashed=1;dashPattern=8 6;opacity=40;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#F57C00;" value="Data &amp; cache">
+          <mxGeometry x="300" y="440" width="560" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="z_offline" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#9E9E9E;dashed=1;dashPattern=8 6;opacity=40;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=13;fontStyle=1;fontColor=#757575;" value="Offline — ingestion &amp; evaluation">
+          <mxGeometry x="900" y="440" width="500" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- Clients -->
+        <mxCell id="intake" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;Case intake&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;API client / upstream system&lt;/div&gt;">
+          <mxGeometry x="45" y="70" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="reviewer" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;Clinical reviewer&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;Browser&lt;/div&gt;">
+          <mxGeometry x="45" y="165" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="reviewui" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;Review UI&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;React + Vite&lt;/div&gt;&lt;div style=&quot;font-size:11px&quot;&gt;queue · evidence · sign-off&lt;/div&gt;">
+          <mxGeometry x="45" y="255" width="200" height="95" as="geometry" />
+        </mxCell>
+
+        <!-- API -->
+        <mxCell id="api" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;FastAPI&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;POST /cases&lt;/div&gt;&lt;div style=&quot;font-size:11px&quot;&gt;GET /cases · /cases/{id}&lt;/div&gt;&lt;div style=&quot;font-size:11px&quot;&gt;POST /cases/{id}/review&lt;/div&gt;">
+          <mxGeometry x="325" y="165" width="200" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Messaging -->
+        <mxCell id="q_process" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2F1;strokeColor=#00897B;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;cases.process&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;main queue&lt;/div&gt;">
+          <mxGeometry x="605" y="95" width="200" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="q_retry" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2F1;strokeColor=#00897B;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;cases.retry&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;TTL backoff&lt;/div&gt;">
+          <mxGeometry x="605" y="185" width="200" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="q_dead" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2F1;strokeColor=#00897B;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;cases.dead&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;dead-letter queue&lt;/div&gt;">
+          <mxGeometry x="605" y="275" width="200" height="66" as="geometry" />
+        </mxCell>
+
+        <!-- Worker -->
+        <mxCell id="worker" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;Worker (consumer)&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;prefetch 1 · retries · idempotent&lt;/div&gt;">
+          <mxGeometry x="885" y="100" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="harness" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;Agent harness&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;bounded loop · guardrails&lt;/div&gt;&lt;div style=&quot;font-size:11px&quot;&gt;citation check · escalation&lt;/div&gt;">
+          <mxGeometry x="885" y="215" width="220" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="tools" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;Typed tools&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;get_patient&lt;/div&gt;&lt;div style=&quot;font-size:11px&quot;&gt;search_policy&lt;/div&gt;&lt;div style=&quot;font-size:11px&quot;&gt;draft_decision (terminal)&lt;/div&gt;">
+          <mxGeometry x="1150" y="150" width="220" height="175" as="geometry" />
+        </mxCell>
+
+        <!-- External AI -->
+        <mxCell id="anthropic" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;Anthropic — Claude&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;agent reasoning (tool use)&lt;/div&gt;">
+          <mxGeometry x="1720" y="130" width="200" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="voyage" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;Voyage AI&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;voyage-3 embeddings&lt;/div&gt;">
+          <mxGeometry x="1720" y="235" width="200" height="84" as="geometry" />
+        </mxCell>
+
+        <!-- Data -->
+        <mxCell id="pg" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;PostgreSQL + pgvector&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;cases · append-only audit&lt;/div&gt;&lt;div style=&quot;font-size:11px&quot;&gt;policy_chunks (vectors)&lt;/div&gt;">
+          <mxGeometry x="340" y="472" width="250" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="redis" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#F57C00;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;Redis&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;idempotency guard&lt;/div&gt;">
+          <mxGeometry x="620" y="472" width="210" height="92" as="geometry" />
+        </mxCell>
+
+        <!-- Offline -->
+        <mxCell id="eval" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#9E9E9E;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;Evaluation harness&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;synthetic dataset · metrics&lt;/div&gt;&lt;div style=&quot;font-size:11px&quot;&gt;fixtures — no DB / no Voyage&lt;/div&gt;">
+          <mxGeometry x="930" y="472" width="220" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="ingest" parent="1" vertex="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#9E9E9E;strokeWidth=2;shadow=1;fontSize=13;fontStyle=1;verticalAlign=middle;align=center;" value="&lt;b&gt;Policy ingestion&lt;/b&gt;&lt;div style=&quot;font-size:11px&quot;&gt;PDF → chunks (page refs)&lt;/div&gt;&lt;div style=&quot;font-size:11px&quot;&gt;→ embeddings → pgvector&lt;/div&gt;">
+          <mxGeometry x="1170" y="472" width="220" height="92" as="geometry" />
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e_int_api" parent="1" edge="1" source="intake" target="api" value="POST /cases" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#388E3C;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_rev_ui" parent="1" edge="1" source="reviewer" target="reviewui" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0288D1;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ui_api" parent="1" edge="1" source="reviewui" target="api" value="REST — queue / detail / review" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0288D1;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_api_q" parent="1" edge="1" source="api" target="q_process" value="publish event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#00897B;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_q_worker" parent="1" edge="1" source="q_process" target="worker" value="consume" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#00897B;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_worker_harness" parent="1" edge="1" source="worker" target="harness" value="run_case" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7B1FA2;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_harness_tools" parent="1" edge="1" source="harness" target="tools" value="tool calls" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7B1FA2;strokeWidth=2;endArrow=classic;startArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_harness_anthropic" parent="1" edge="1" source="harness" target="anthropic" value="LLM loop (tool use)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#455A64;strokeWidth=2;endArrow=classic;startArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_tools_voyage" parent="1" edge="1" source="tools" target="voyage" value="embed query" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#455A64;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_tools_pg" parent="1" edge="1" source="tools" target="pg" value="vector search" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#F57C00;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_worker_pg" parent="1" edge="1" source="worker" target="pg" value="persist decision + audit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#F57C00;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_api_pg" parent="1" edge="1" source="api" target="pg" value="read / write cases" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#F57C00;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_api_redis" parent="1" edge="1" source="api" target="redis" value="idempotency" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#F57C00;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_worker_retry" parent="1" edge="1" source="worker" target="q_retry" value="retry / backoff" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#C62828;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_retry_process" parent="1" edge="1" source="q_retry" target="q_process" value="requeue (TTL)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#00897B;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_worker_dead" parent="1" edge="1" source="worker" target="q_dead" value="dead-letter (exhausted)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#C62828;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ingest_voyage" parent="1" edge="1" source="ingest" target="voyage" value="embed chunks" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#9E9E9E;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ingest_pg" parent="1" edge="1" source="ingest" target="pg" value="store policy_chunks" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#9E9E9E;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_eval_harness" parent="1" edge="1" source="eval" target="harness" value="run_case (fixtures)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#9E9E9E;strokeWidth=2;endArrow=classic;fontSize=10;fontColor=#37474F;labelBackgroundColor=#FFFFFF;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

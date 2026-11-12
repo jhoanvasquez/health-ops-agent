@@ -1,156 +1,179 @@
-# Healthcare Operations Agent — Prior Authorization Assistant
+# Health Operations Agent — Prior-Authorization Assistant
 
-An autonomous agent that drafts prior-authorization decisions for healthcare operations, with its own agent harness, typed tools, mandatory human review, and an evaluation system.
+An autonomous agent that drafts prior-authorization decisions, with its own agent
+harness, typed tools, an evaluation system, retry/dead-letter reliability, and a
+human review console. Every clinical claim is backed by a cited policy passage, and
+denials and low-confidence cases are always routed to a human.
 
-> **Status:** early development. Not production. Uses **synthetic data only** — zero real PHI.
+> **Status:** engineering demo, not a production system. **Synthetic data only —
+> zero real PHI.**
+
+---
 
 ## The problem
 
-Prior authorization is a slow, manual, error-prone step in healthcare: a clinician's request is checked, criterion by criterion, against a payer's policy. This agent assists that review.
+Prior authorization is a slow, manual, error-prone gate in healthcare: a clinician's
+request is checked, criterion by criterion, against a payer's policy. The work is
+repetitive but high-stakes — a wrong approval or denial has real consequences.
 
-Given a synthetic FHIR patient, clinical notes, and a payer policy (PDF), the agent:
+This agent assists that review. Given a synthetic FHIR patient, clinical notes, and a
+payer policy (PDF), it:
 
-1. Extracts the relevant clinical data.
-2. Retrieves the applicable policy and its criteria.
-3. Evaluates each criterion, **citing evidence** from the record and policy.
-4. Drafts a decision packet: **approve / deny / request more information**.
-5. **Escalates to a human reviewer** when confidence is low or information is missing.
+1. Extracts the relevant clinical data (`get_patient`).
+2. Retrieves the applicable policy criteria by meaning, not keywords (`search_policy`).
+3. Evaluates each criterion, **citing the exact policy passage** it relies on.
+4. Drafts a decision packet — **approve / deny / request more information**.
+5. **Escalates to a human reviewer** when it would deny or is not confident.
 
-A human always reviews denials and low-confidence cases. The agent never decides those alone.
+The agent never finalizes a denial or a low-confidence case on its own — a human does.
+
+---
 
 ## Architecture
 
-```
-Request ─► FastAPI ─► Postgres (cases, state, audit)
-               │ publishes event
-               ▼
-           RabbitMQ (retries, dead-letter)
-               ▼
-        Agent Worker (loop + memory + guardrails)
-               │   tools: get_patient · search_policy ·
-               │          check_criterion · draft_decision · request_info
-               ▼
-        Human review UI (evidence + citations)  —  Langfuse traces + metrics
-```
+![Architecture](docs/architecture.png)
 
-Every step is audited (which tool, what input, what output, what cost). Tools are deterministic, testable functions; the LLM only decides which one to call.
+> The editable source is [`docs/architecture.drawio`](docs/architecture.drawio)
+> (open with [diagrams.net](https://app.diagrams.net)).
+
+| Layer | What it does |
+|---|---|
+| **Review UI** (`web/`) | React + Vite console: the queue of escalated cases, each decision with its cited evidence, and approve / deny / request-info sign-off. |
+| **API** (`app/api`) | FastAPI. Accepts and queries cases, lists the review queue, records the human decision. Thin — it enqueues work, never runs the agent inline. |
+| **Messaging** (`app/messaging`) | RabbitMQ with a retry/dead-letter topology — failures are retried with backoff, then dead-lettered, never dropped. |
+| **Agent worker** (`app/agent`, `app/workers`) | A custom agent loop (no framework) with typed tools, hard limits, and guardrails enforced in code. |
+| **Data & cache** (`app/db`) | PostgreSQL + pgvector (cases, append-only audit, policy vectors) and Redis (idempotency). |
+| **External AI** (`app/llm`, `app/ingestion`) | Anthropic Claude for reasoning and Voyage for embeddings — both behind swappable interfaces. |
+| **Offline** (`evals/`, `app/ingestion`) | Policy ingestion and the evaluation harness (fixtures — runs with no database or embedding API). |
+
+---
+
+## Engineering decisions that matter
+
+The decisions below are what separate this from an "LLM wrapper." Each is recorded as
+an ADR in [`docs/adr/`](docs/adr).
+
+- **A custom agent loop, not a framework** ([ADR 002](docs/adr/002-custom-agent-loop.md)).
+  Owning the loop makes the limits (max steps / timeout / token budget), tool
+  selection, and guardrails fully testable and observable — and makes the evals
+  precise.
+- **Citation faithfulness is enforced in code, not prompted.** Every claim must cite a
+  passage the agent actually retrieved; the guardrail cross-checks each citation
+  against the retrieved set and discards fabricated ones, downgrading the verdict to
+  "cannot determine." The evals **measure** this — on the real baseline it holds at
+  1.000.
+- **Ports and adapters throughout.** The LLM, the embedder, and the policy store sit
+  behind interfaces. That is why the evaluation harness can run the real agent with
+  **zero** calls to the database or the embedding API — it swaps in fixtures.
+- **An evaluation system, not vibes** ([ADR 004](docs/adr/004-eval-ci-gating.md)). A
+  versioned dataset of synthetic cases with known answers, deterministic metrics, a
+  CI self-check gate, and a committed baseline report.
+- **Reliability is designed, not hoped for.** Retry-with-backoff and a dead-letter
+  queue mean every request is accounted for; reprocessing is idempotent.
+
+---
+
+## Results
+
+Baseline against `claude-haiku-4-5` on the 6 public evaluation cases
+([full report](docs/eval-report.md)):
+
+| Metric | Value |
+|---|---|
+| Decision accuracy | 0.833 |
+| Escalation accuracy | 0.833 |
+| **Citation faithfulness** | **1.000** |
+| Per-criterion accuracy | 0.923 |
+| Unsupported claims | 0 |
+
+The headline is **citation faithfulness 1.000 / 0 unsupported claims**: against a real
+model, the agent never cited evidence it hadn't retrieved — the in-code guardrail holds.
+
+The one decision "miss" is the honest kind an eval exists to surface: on a genuinely
+ambiguous policy, the agent chose `request_info` where the expected label was a
+low-confidence approval. Reviewing it, the agent's choice was arguably the more
+defensible one — the label was kept rather than tuned to the model.
+
+---
 
 ## Stack
 
-Python 3.12 · FastAPI · Anthropic API (behind a swappable `LLMClient`) · custom agent loop · PostgreSQL + pgvector · SQLAlchemy 2 + Alembic · RabbitMQ · Redis · Synthea · Langfuse · Docker Compose · GitHub Actions.
+Python 3.12 · FastAPI + Pydantic v2 · Anthropic API (behind a swappable `LLMClient`) ·
+custom agent loop · PostgreSQL + pgvector · SQLAlchemy 2 async + Alembic · RabbitMQ ·
+Redis · Voyage embeddings · PyMuPDF · `pytest` evals · React + Vite + TypeScript ·
+Docker Compose · GitHub Actions · `ruff` / `mypy` (strict).
 
-## Evaluation
+---
 
-A versioned dataset of synthetic cases with expected outcomes and evidence drives the evals: decision accuracy, per-criterion accuracy, citation faithfulness, escalation rate, hallucination rate, tool-selection accuracy, and cost/latency. Evals run in CI and gate prompt/tool/model changes.
-
-## Compliance note
-
-This project uses synthetic data only. For a real production deployment you would additionally need: a BAA with the LLM provider, encryption at rest and in transit, role-based access control, data retention/deletion policies, and full audit logging. (Colombia analogy: Law 1581 / habeas data.)
-
-## Development
+## Run it
 
 ```bash
-cp .env.example .env         # fill in ANTHROPIC_API_KEY and VOYAGE_API_KEY
-pip install -e ".[dev]"      # local tooling
+cp .env.example .env          # set ANTHROPIC_API_KEY and VOYAGE_API_KEY
+pip install -e ".[dev]"
 ruff check . && mypy app evals scripts && pytest   # the CI gate
 ```
 
-### Run the full slice
+### The full slice
 
-`docker compose up` starts everything: it applies migrations (one-shot `migrate`
-service), then brings up the API, the agent worker, Postgres (pgvector), RabbitMQ,
-and Redis.
+`docker compose up` applies migrations, then brings up the API, the agent worker, the
+review UI, Postgres (pgvector), RabbitMQ, and Redis.
 
 ```bash
-# generate a synthetic policy PDF that matches the patient-001 fixture
-python data/make_sample_policy.py
-
+python data/make_sample_policy.py    # a synthetic policy matching the patient fixture
 docker compose up -d --build
 
-# ingest the policy into pgvector (run inside the worker: it has the DB + data volume)
+# ingest the policy (inside the worker — it has the DB + data volume)
 docker compose exec worker \
   python -m app.ingestion.ingest_cli data/policies/sample-policy.pdf sample-policy policy-doc-1
 
-# submit a synthetic case (patient fixture lives in data/patients/)
+# submit a synthetic case; poll for the cited decision
 curl -X POST localhost:8000/cases -H 'content-type: application/json' \
   -d '{"idempotency_key":"demo-1","policy_id":"sample-policy","patient_ref":"patient-001"}'
-
-# poll for the decision (use the case_id from the response above)
 curl localhost:8000/cases/<case_id>
 ```
 
-### End-to-end test
+## Evaluation
 
-With the stack up, a policy ingested, and the patient fixture in place:
-
-```bash
-RUN_INTEGRATION=1 pytest tests/integration -q
-```
-
-### Evaluation
-
-The agent is scored against a versioned dataset of synthetic cases (`evals/cases/`)
-on decision accuracy, citation faithfulness, correct escalation, and per-criterion
-accuracy — with no database or embedding API (fixtures). See `docs/eval-report.md`
-for the baseline.
+The agent is scored against a versioned dataset of synthetic cases (`evals/cases/`) on
+decision accuracy, citation faithfulness, correct escalation, and per-criterion
+accuracy — with no database or embedding API (fixtures). See
+[`docs/eval-report.md`](docs/eval-report.md) for the baseline.
 
 ```bash
-python evals/run_evals.py --self-check             # deterministic; the CI gate
+python evals/run_evals.py --self-check                        # deterministic; the CI gate
 python evals/run_evals.py --model claude-haiku-4-5 --report   # real metrics + report
 ```
 
 ## Reliability
 
-Case processing is resilient. When the worker fails on a case (a transient LLM/API
-error, a DB hiccup), the message is retried with a delay through a dead-letter
-topology, up to 3 attempts. After that the case is marked `failed` (with a redacted
-`last_error`) and its message lands in a durable `cases.dead` queue for inspection.
-A message whose body cannot be parsed is dead-lettered on the first delivery.
-
-**Queue recreation.** The main queue `cases.process` carries dead-letter arguments.
-On an older broker where it was declared without them, RabbitMQ rejects the
-changed-argument re-declare — recreate with a clean broker:
-
-```bash
-docker compose down        # or: down -v to also wipe data
-docker compose up -d
-```
-
-**Inspect the dead-letter queue.** RabbitMQ management UI at http://localhost:15672
-(credentials from `.env`) → Queues → `cases.dead`.
-
-**See it in action.** Point the worker at an invalid model so every attempt fails,
-then watch a case retry and land in `cases.dead`:
-
-```bash
-# set LLM_MODEL to a bogus id in .env, then:
-docker compose up -d --force-recreate worker
-curl -X POST localhost:8000/cases -H 'content-type: application/json' \
-  -d '{"idempotency_key":"fail-demo","policy_id":"sample-policy","patient_ref":"patient-001"}'
-docker compose logs -f worker     # 3 attempts, then dead-letter; the case ends `failed`
-```
+When the worker fails on a case (a transient LLM/API error, a DB hiccup), the message
+is retried with a delay through a dead-letter topology, up to 3 attempts; after that
+the case is marked `failed` (with a redacted `last_error`) and its message lands in a
+durable `cases.dead` queue for inspection. An un-parseable message is dead-lettered on
+first delivery. Because `cases.process` carries dead-letter arguments, upgrading an
+older broker needs a recreate (`docker compose down` then `up`).
 
 ## Review UI
 
-A reviewer console (`web/`, React + Vite + TypeScript) for the cases the agent
-escalates to a human. It shows each drafted decision with its **cited policy
-evidence** — every criterion paired with the exact passage it rests on — and lets a
-reviewer approve, deny, or request more information.
+A reviewer console (`web/`, React + Vite + TypeScript) for the escalated cases. It
+shows each drafted decision with its **cited policy evidence** — every criterion paired
+with the exact passage it rests on — and lets a reviewer approve, deny, or request more
+information. With the stack up it is served at **http://localhost:5173**; to run it on
+the host, `cd web && npm install && npm run dev`.
 
-With the stack up it is served at **http://localhost:5173** by the `web` service.
-To run it directly on the host instead (Node 20+):
+---
 
-```bash
-cd web
-cp .env.example .env         # VITE_API_URL=http://localhost:8000
-npm install
-npm run dev                  # http://localhost:5173
-```
+## Compliance & limitations
 
-The frontend gate is `npm run build` (TypeScript check + bundle). The API permits
-the dev origin via CORS (`settings.cors_origins`). It backs the review queue with
-`GET /cases?pending_review=true`, case detail with `GET /cases/{id}`, and the
-human decision with `POST /cases/{id}/review`.
+- **Synthetic data only.** No real PHI anywhere — not in code, fixtures, logs, or while
+  debugging. Sensitive fields are redacted in the audit log.
+- **For a real production deployment** you would additionally need: a BAA with the LLM
+  provider, encryption at rest and in transit, role-based access control, data
+  retention/deletion policies, and full audit logging. (Colombia analogy: Law 1581 /
+  habeas data.)
+- **Known limits:** reviewer identity is a stub (no auth/RBAC yet); the eval dataset is
+  small (8 cases, growing); the dead-letter cycle and the UI click-through are verified
+  manually against a live stack, not in CI.
 
 ## License
 
