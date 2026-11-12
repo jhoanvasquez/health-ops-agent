@@ -40,7 +40,10 @@ async def _handle(message: AbstractIncomingMessage) -> None:
             result = await process_case(
                 case_id=case_id, session=session, llm=AnthropicClient(), ctx=ctx
             )
-        logger.info("case %s -> %s (%s)", case_id, result.state, result.reason)
+        if result is None:
+            logger.info("case %s already terminal — skipped", case_id)
+        else:
+            logger.info("case %s -> %s (%s)", case_id, result.state, result.reason)
 
 
 async def run_worker() -> None:

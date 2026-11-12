@@ -35,6 +35,12 @@ class CaseState(enum.StrEnum):
     needs_human = "needs_human"
     request_info = "request_info"
     decided = "decided"
+    failed = "failed"
+
+
+TERMINAL_STATES = frozenset(
+    {CaseState.decided, CaseState.needs_human, CaseState.request_info, CaseState.failed}
+)
 
 
 class Case(Base):
@@ -51,6 +57,9 @@ class Case(Base):
     patient_ref: Mapped[str] = mapped_column(String(255))
     # Final DecisionPacket (see app/agent/outputs.py), null until decided.
     packet: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    # Reliability: processing attempts and the last (redacted) error, if any.
+    attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    last_error: Mapped[str | None] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 

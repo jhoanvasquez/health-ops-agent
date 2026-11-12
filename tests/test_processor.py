@@ -9,7 +9,7 @@ from app.agent.tools.base import ToolContext
 from app.agent.tools.ports import PolicyPassage
 from app.db.models import AuditEntry, Case, CaseState
 from app.llm.types import LLMResponse, Message, ToolCall, ToolSpec, Usage
-from app.workers.processor import process_case
+from app.workers.processor import mark_failed, process_case, redact_error
 
 PASSAGE = PolicyPassage(passage="MRI requires prior PT.", page=2, doc_id="policy-1", score=0.9)
 
@@ -116,3 +116,47 @@ async def test_process_case_persists_decision_and_audit() -> None:
     assert case.packet["outcome"] == "approve"
     assert session.committed
     assert any(isinstance(obj, AuditEntry) for obj in session.added)
+
+
+async def test_terminal_case_is_skipped() -> None:
+    case = Case(
+        id=uuid4(),
+        idempotency_key="k",
+        policy_id="p",
+        patient_ref="pt",
+        state=CaseState.decided,
+    )
+    session = FakeSession(case)
+    llm = FakeLLM([])  # must never be called
+    ctx = ToolContext(FakePatients(), FakeStore(), FakeEmbedder())
+
+    result = await process_case(case_id=case.id, session=session, llm=llm, ctx=ctx)  # type: ignore[arg-type]
+
+    assert result is None
+    assert llm.calls == 0
+    assert not session.committed
+    assert session.added == []
+
+
+async def test_mark_failed_records_failure() -> None:
+    case = Case(
+        id=uuid4(),
+        idempotency_key="k",
+        policy_id="p",
+        patient_ref="pt",
+        state=CaseState.processing,
+    )
+    session = FakeSession(case)
+
+    await mark_failed(session=session, case_id=case.id, attempt=3, error="ValueError: boom")  # type: ignore[arg-type]
+
+    assert case.state == CaseState.failed
+    assert case.attempts == 3
+    assert case.last_error == "ValueError: boom"
+    assert session.committed
+
+
+def test_redact_error_truncates() -> None:
+    redacted = redact_error(ValueError("x" * 500))
+    assert redacted.startswith("ValueError: ")
+    assert len(redacted) <= len("ValueError: ") + 200
