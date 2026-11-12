@@ -35,3 +35,6 @@ jobs:
 
       - name: Tests (pytest)
         run: pytest -q
+
+      - name: Eval self-check
+        run: python evals/run_evals.py --self-check

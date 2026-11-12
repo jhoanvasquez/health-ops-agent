@@ -15,6 +15,7 @@ import asyncio
 
 from evals.dataset import load_cases
 from evals.metrics import Metrics, aggregate
+from evals.report import write_report
 from evals.runner import CaseResult, LLMFactory, replay_llm_factory, run_dataset
 
 
@@ -57,12 +58,14 @@ def main() -> None:
     held_out = len(load_cases(include_hidden=True)) - len(cases)
 
     llm_for = replay_llm_factory() if args.self_check else _anthropic_factory(args.model)
+    model_label = "self-check (scripted)" if args.self_check else args.model
     results: list[CaseResult] = asyncio.run(run_dataset(cases, llm_for))
     metrics = aggregate([r.score for r in results])
     _print_table(metrics, held_out)
 
     if args.report:
-        print("\n(--report lands in Phase 4)")
+        path = write_report(results, metrics, model_label)
+        print(f"\nwrote {path}")
 
     if args.self_check:
         if metrics.n == 0:
