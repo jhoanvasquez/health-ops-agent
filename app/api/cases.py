@@ -41,6 +41,8 @@ def _to_status(case: Case) -> CaseStatusResponse:
     packet = DecisionPacket.model_validate(case.packet) if case.packet is not None else None
     return CaseStatusResponse(
         case_id=case.id,
+        policy_id=case.policy_id,
+        patient_ref=case.patient_ref,
         state=case.state,
         packet=packet,
         review_decision=cast("Outcome | None", case.review_decision),

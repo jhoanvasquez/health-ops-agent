@@ -40,6 +40,8 @@ export interface CaseSummary {
 
 export interface CaseDetail {
   case_id: string;
+  policy_id: string;
+  patient_ref: string;
   state: CaseState;
   packet: DecisionPacket | null;
   review_decision: Outcome | null;

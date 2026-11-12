@@ -24,6 +24,8 @@ class CaseCreatedResponse(BaseModel):
 
 class CaseStatusResponse(BaseModel):
     case_id: UUID
+    policy_id: str
+    patient_ref: str
     state: CaseState
     packet: DecisionPacket | None = None
     review_decision: Outcome | None = None
