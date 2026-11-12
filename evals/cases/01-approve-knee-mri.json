@@ -1,0 +1,29 @@
+{
+  "id": "01-approve-knee-mri",
+  "tags": ["approve", "happy-path"],
+  "hidden": false,
+  "policy_id": "knee-mri",
+  "patient": {
+    "resourceType": "Bundle",
+    "type": "collection",
+    "entry": [
+      { "resource": { "resourceType": "Patient", "id": "p01", "gender": "female", "birthDate": "1972-03-02" } },
+      { "resource": { "resourceType": "Condition", "code": { "text": "Osteoarthritis of the right knee" }, "onsetDateTime": "2024-01-05", "clinicalStatus": { "text": "active" } } },
+      { "resource": { "resourceType": "Procedure", "code": { "text": "Physical therapy, right knee, 6 weeks" }, "status": "completed", "outcome": { "text": "No sustained improvement; persistent pain" } } },
+      { "resource": { "resourceType": "Observation", "code": { "text": "Knee pain score (0-10)" }, "valueQuantity": { "value": 7 } } },
+      { "resource": { "resourceType": "ServiceRequest", "code": { "text": "MRI right knee without contrast" }, "status": "active", "intent": "order" } }
+    ]
+  },
+  "policy_passages": [
+    { "doc_id": "knee-mri", "page": 1, "passage": "MRI of the knee is medically necessary when the member has a chronic knee condition persisting at least 6 weeks, has completed and failed at least 6 weeks of physical therapy, and documents a current pain score of 4 or higher." }
+  ],
+  "expected": {
+    "outcome": "approve",
+    "state": "decided",
+    "criteria": [
+      { "contains": "chronic knee condition", "met": true },
+      { "contains": "failed at least 6 weeks of physical therapy", "met": true },
+      { "contains": "pain score of 4 or higher", "met": true }
+    ]
+  }
+}

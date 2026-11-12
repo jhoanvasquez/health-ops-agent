@@ -1,0 +1,28 @@
+{
+  "id": "05-deny-contradictory-criteria",
+  "tags": ["deny", "contradictory-criteria"],
+  "hidden": false,
+  "policy_id": "lumbar-mri",
+  "patient": {
+    "resourceType": "Bundle",
+    "type": "collection",
+    "entry": [
+      { "resource": { "resourceType": "Patient", "id": "p05", "gender": "female", "birthDate": "1966-04-08" } },
+      { "resource": { "resourceType": "Condition", "code": { "text": "Chronic low back pain, 10 weeks" }, "onsetDateTime": "2023-12-01", "clinicalStatus": { "text": "active" } } },
+      { "resource": { "resourceType": "Procedure", "code": { "text": "Physical therapy, lumbar, 6 weeks" }, "status": "completed", "outcome": { "text": "Failed to improve" } } },
+      { "resource": { "resourceType": "Observation", "code": { "text": "Neurologic deficit present" }, "valueBoolean": false } },
+      { "resource": { "resourceType": "ServiceRequest", "code": { "text": "MRI lumbar spine" }, "status": "active", "intent": "order" } }
+    ]
+  },
+  "policy_passages": [
+    { "doc_id": "lumbar-mri", "page": 1, "passage": "MRI of the lumbar spine requires chronic back pain for at least 6 weeks with a failed course of physical therapy, AND the presence of a progressive neurologic deficit. Absent a neurologic deficit, imaging is not medically necessary even when conservative therapy has failed." }
+  ],
+  "expected": {
+    "outcome": "deny",
+    "state": "needs_human",
+    "criteria": [
+      { "contains": "failed course of physical therapy", "met": true },
+      { "contains": "progressive neurologic deficit", "met": false }
+    ]
+  }
+}

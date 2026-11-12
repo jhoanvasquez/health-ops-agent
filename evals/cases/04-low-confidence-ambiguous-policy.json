@@ -1,0 +1,26 @@
+{
+  "id": "04-low-confidence-ambiguous-policy",
+  "tags": ["low-confidence", "ambiguous-policy", "escalation"],
+  "hidden": false,
+  "policy_id": "shoulder-mri",
+  "patient": {
+    "resourceType": "Bundle",
+    "type": "collection",
+    "entry": [
+      { "resource": { "resourceType": "Patient", "id": "p04", "gender": "male", "birthDate": "1975-12-30" } },
+      { "resource": { "resourceType": "Condition", "code": { "text": "Chronic right shoulder pain, suspected rotator cuff tear" }, "onsetDateTime": "2024-01-15", "clinicalStatus": { "text": "active" } } },
+      { "resource": { "resourceType": "Procedure", "code": { "text": "Conservative management, 4 weeks" }, "status": "completed", "outcome": { "text": "Partial improvement" } } },
+      { "resource": { "resourceType": "ServiceRequest", "code": { "text": "MRI right shoulder" }, "status": "active", "intent": "order" } }
+    ]
+  },
+  "policy_passages": [
+    { "doc_id": "shoulder-mri", "page": 1, "passage": "MRI of the shoulder may be approved after an adequate trial of conservative management. The policy does not define a minimum duration for 'adequate', and partial improvement is not addressed." }
+  ],
+  "expected": {
+    "outcome": "approve",
+    "state": "needs_human",
+    "criteria": [
+      { "contains": "adequate trial of conservative management", "met": true }
+    ]
+  }
+}

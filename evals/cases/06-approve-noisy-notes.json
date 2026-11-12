@@ -1,0 +1,29 @@
+{
+  "id": "06-approve-noisy-notes",
+  "tags": ["approve", "noisy-notes"],
+  "hidden": false,
+  "policy_id": "knee-mri",
+  "patient": {
+    "resourceType": "Bundle",
+    "type": "collection",
+    "entry": [
+      { "resource": { "resourceType": "Patient", "id": "p06", "gender": "male", "birthDate": "1959-06-25" } },
+      { "resource": { "resourceType": "Condition", "code": { "text": "OA R knee - see ortho note 1/24. h/o DM2, HTN." }, "onsetDateTime": "2023-10-10", "clinicalStatus": { "text": "active" } } },
+      { "resource": { "resourceType": "Procedure", "code": { "text": "PT x6wk per Dr. Alvarez; pt reports 'no better', d/c'd 3/2" }, "status": "completed", "outcome": { "text": "failed - persistent pain, limited ROM" } } },
+      { "resource": { "resourceType": "Observation", "code": { "text": "pain 8/10 at visit; also c/o back pain (unrelated)" }, "valueQuantity": { "value": 8 } } },
+      { "resource": { "resourceType": "ServiceRequest", "code": { "text": "MRI R knee w/o contrast - r/o meniscal tear" }, "status": "active", "intent": "order" } }
+    ]
+  },
+  "policy_passages": [
+    { "doc_id": "knee-mri", "page": 1, "passage": "MRI of the knee is medically necessary when the member has a chronic knee condition persisting at least 6 weeks, has completed and failed at least 6 weeks of physical therapy, and documents a current pain score of 4 or higher." }
+  ],
+  "expected": {
+    "outcome": "approve",
+    "state": "decided",
+    "criteria": [
+      { "contains": "chronic knee condition", "met": true },
+      { "contains": "failed at least 6 weeks of physical therapy", "met": true },
+      { "contains": "pain score of 4 or higher", "met": true }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "08-hidden-deny-exclusion",
+  "tags": ["deny", "exclusion"],
+  "hidden": true,
+  "policy_id": "knee-mri",
+  "patient": {
+    "resourceType": "Bundle",
+    "type": "collection",
+    "entry": [
+      { "resource": { "resourceType": "Patient", "id": "p08", "gender": "male", "birthDate": "1990-11-03" } },
+      { "resource": { "resourceType": "Condition", "code": { "text": "Acute right knee injury, fall 2 days ago" }, "onsetDateTime": "2024-03-18", "clinicalStatus": { "text": "active" } } },
+      { "resource": { "resourceType": "Observation", "code": { "text": "Knee pain score (0-10)" }, "valueQuantity": { "value": 9 } } },
+      { "resource": { "resourceType": "ServiceRequest", "code": { "text": "MRI right knee - acute trauma" }, "status": "active", "intent": "order" } }
+    ]
+  },
+  "policy_passages": [
+    { "doc_id": "knee-mri", "page": 2, "passage": "This chronic-knee-condition policy does not apply to acute trauma, which follows a separate emergency pathway. Requests submitted under this policy for acute injuries are denied as out of scope." }
+  ],
+  "expected": {
+    "outcome": "deny",
+    "state": "needs_human",
+    "criteria": [
+      { "contains": "does not apply to acute trauma", "met": false }
+    ]
+  }
+}
