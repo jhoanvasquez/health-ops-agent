@@ -87,8 +87,48 @@ With the stack up, a policy ingested, and the patient fixture in place:
 RUN_INTEGRATION=1 pytest tests/integration -q
 ```
 
-> The evaluation harness (`evals/`) is the next change — a versioned case dataset
-> with accuracy, citation-faithfulness, escalation, and tool-selection metrics.
+### Evaluation
+
+The agent is scored against a versioned dataset of synthetic cases (`evals/cases/`)
+on decision accuracy, citation faithfulness, correct escalation, and per-criterion
+accuracy — with no database or embedding API (fixtures). See `docs/eval-report.md`
+for the baseline.
+
+```bash
+python evals/run_evals.py --self-check             # deterministic; the CI gate
+python evals/run_evals.py --model claude-haiku-4-5 --report   # real metrics + report
+```
+
+## Reliability
+
+Case processing is resilient. When the worker fails on a case (a transient LLM/API
+error, a DB hiccup), the message is retried with a delay through a dead-letter
+topology, up to 3 attempts. After that the case is marked `failed` (with a redacted
+`last_error`) and its message lands in a durable `cases.dead` queue for inspection.
+A message whose body cannot be parsed is dead-lettered on the first delivery.
+
+**Queue recreation.** The main queue `cases.process` carries dead-letter arguments.
+On an older broker where it was declared without them, RabbitMQ rejects the
+changed-argument re-declare — recreate with a clean broker:
+
+```bash
+docker compose down        # or: down -v to also wipe data
+docker compose up -d
+```
+
+**Inspect the dead-letter queue.** RabbitMQ management UI at http://localhost:15672
+(credentials from `.env`) → Queues → `cases.dead`.
+
+**See it in action.** Point the worker at an invalid model so every attempt fails,
+then watch a case retry and land in `cases.dead`:
+
+```bash
+# set LLM_MODEL to a bogus id in .env, then:
+docker compose up -d --force-recreate worker
+curl -X POST localhost:8000/cases -H 'content-type: application/json' \
+  -d '{"idempotency_key":"fail-demo","policy_id":"sample-policy","patient_ref":"patient-001"}'
+docker compose logs -f worker     # 3 attempts, then dead-letter; the case ends `failed`
+```
 
 ## License
 
