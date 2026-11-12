@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.agent.tools.ports import PolicyPassage
+from app.llm.types import LLMResponse, Message, ToolSpec
 from evals.dataset import CasePassage
 
 
@@ -42,3 +43,21 @@ class StubEmbedder:
 
     async def embed(self, text: str) -> list[float]:
         return [0.0]
+
+
+class ReplayLLM:
+    """A scripted `LLMClient` that replays a fixed list of responses, one per call.
+
+    Used by `--self-check` to drive the real harness deterministically — no network.
+    """
+
+    def __init__(self, responses: list[LLMResponse]) -> None:
+        self._responses = responses
+        self._index = 0
+
+    async def complete(
+        self, *, system: str, messages: list[Message], tools: list[ToolSpec], max_tokens: int
+    ) -> LLMResponse:
+        response = self._responses[self._index]
+        self._index += 1
+        return response
