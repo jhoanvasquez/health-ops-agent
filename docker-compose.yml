@@ -25,6 +25,20 @@ services:
         condition: service_healthy
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  web:
+    image: node:22-slim
+    working_dir: /app
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    command: sh -c "npm install && npm run dev -- --host"
+
   worker:
     build: .
     env_file: .env

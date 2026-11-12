@@ -130,6 +130,28 @@ curl -X POST localhost:8000/cases -H 'content-type: application/json' \
 docker compose logs -f worker     # 3 attempts, then dead-letter; the case ends `failed`
 ```
 
+## Review UI
+
+A reviewer console (`web/`, React + Vite + TypeScript) for the cases the agent
+escalates to a human. It shows each drafted decision with its **cited policy
+evidence** — every criterion paired with the exact passage it rests on — and lets a
+reviewer approve, deny, or request more information.
+
+With the stack up it is served at **http://localhost:5173** by the `web` service.
+To run it directly on the host instead (Node 20+):
+
+```bash
+cd web
+cp .env.example .env         # VITE_API_URL=http://localhost:8000
+npm install
+npm run dev                  # http://localhost:5173
+```
+
+The frontend gate is `npm run build` (TypeScript check + bundle). The API permits
+the dev origin via CORS (`settings.cors_origins`). It backs the review queue with
+`GET /cases?pending_review=true`, case detail with `GET /cases/{id}`, and the
+human decision with `POST /cases/{id}/review`.
+
 ## License
 
 TBD.
