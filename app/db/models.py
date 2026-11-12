@@ -60,6 +60,11 @@ class Case(Base):
     # Reliability: processing attempts and the last (redacted) error, if any.
     attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     last_error: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # Human review: the reviewer's decision on an escalated case (null until reviewed).
+    review_decision: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    review_note: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+    reviewer: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 

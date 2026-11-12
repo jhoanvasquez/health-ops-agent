@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     # App
     env: str = "local"
     log_level: str = "INFO"
+    cors_origins: list[str] = ["http://localhost:5173"]
 
     # LLM
     anthropic_api_key: str = Field(default="", repr=False)
