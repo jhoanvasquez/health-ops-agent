@@ -5,36 +5,11 @@ harness, typed tools, an evaluation system, retry/dead-letter reliability, and a
 human review console. Every clinical claim is backed by a cited policy passage, and
 denials and low-confidence cases are always routed to a human.
 
-> **Status:** engineering demo, not a production system. **Synthetic data only —
-> zero real PHI.**
-
----
-
-## The problem
-
-Prior authorization is a slow, manual, error-prone gate in healthcare: a clinician's
-request is checked, criterion by criterion, against a payer's policy. The work is
-repetitive but high-stakes — a wrong approval or denial has real consequences.
-
-This agent assists that review. Given a synthetic FHIR patient, clinical notes, and a
-payer policy (PDF), it:
-
-1. Extracts the relevant clinical data (`get_patient`).
-2. Retrieves the applicable policy criteria by meaning, not keywords (`search_policy`).
-3. Evaluates each criterion, **citing the exact policy passage** it relies on.
-4. Drafts a decision packet — **approve / deny / request more information**.
-5. **Escalates to a human reviewer** when it would deny or is not confident.
-
-The agent never finalizes a denial or a low-confidence case on its own — a human does.
-
 ---
 
 ## Architecture
 
 ![Architecture](docs/architecture.png)
-
-> The editable source is [`docs/architecture.drawio`](docs/architecture.drawio)
-> (open with [diagrams.net](https://app.diagrams.net)).
 
 | Layer | What it does |
 |---|---|
@@ -70,29 +45,6 @@ an ADR in [`docs/adr/`](docs/adr).
   CI self-check gate, and a committed baseline report.
 - **Reliability is designed, not hoped for.** Retry-with-backoff and a dead-letter
   queue mean every request is accounted for; reprocessing is idempotent.
-
----
-
-## Results
-
-Baseline against `claude-haiku-4-5` on the 6 public evaluation cases
-([full report](docs/eval-report.md)):
-
-| Metric | Value |
-|---|---|
-| Decision accuracy | 0.833 |
-| Escalation accuracy | 0.833 |
-| **Citation faithfulness** | **1.000** |
-| Per-criterion accuracy | 0.923 |
-| Unsupported claims | 0 |
-
-The headline is **citation faithfulness 1.000 / 0 unsupported claims**: against a real
-model, the agent never cited evidence it hadn't retrieved — the in-code guardrail holds.
-
-The one decision "miss" is the honest kind an eval exists to surface: on a genuinely
-ambiguous policy, the agent chose `request_info` where the expected label was a
-low-confidence approval. Reviewing it, the agent's choice was arguably the more
-defensible one — the label was kept rather than tuned to the model.
 
 ---
 
@@ -175,6 +127,3 @@ the host, `cd web && npm install && npm run dev`.
   small (8 cases, growing); the dead-letter cycle and the UI click-through are verified
   manually against a live stack, not in CI.
 
-## License
-
-TBD.
