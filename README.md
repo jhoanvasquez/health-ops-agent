@@ -113,6 +113,13 @@ with the exact passage it rests on — and lets a reviewer approve, deny, or req
 information. With the stack up it is served at **http://localhost:5173**; to run it on
 the host, `cd web && npm install && npm run dev`.
 
+## Deploy
+
+The stack ships as a Render Blueprint ([`render.yaml`](render.yaml)) — API, agent
+worker, static review UI, managed Postgres + pgvector, and Key Value (Redis), with
+RabbitMQ on CloudAMQP. Migrations run on deploy; nothing secret lives in the repo. The
+step-by-step is in [`docs/deploy-render.md`](docs/deploy-render.md).
+
 ---
 
 ## Compliance & limitations
