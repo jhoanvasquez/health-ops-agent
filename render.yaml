@@ -29,9 +29,10 @@ services:
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
     # Docker runtime overrides the image command with `dockerCommand` (not
-    # `startCommand`). Render injects $PORT. Free tier has no preDeployCommand, so
-    # migrations run here at startup — `alembic upgrade head` is idempotent.
-    dockerCommand: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    # `startCommand`). Render runs it in a shell, so chain with `&&` directly — do
+    # NOT wrap in `sh -c "..."` (the nested quotes break it). Render injects $PORT.
+    # Free tier has no preDeployCommand, so migrations run at startup (idempotent).
+    dockerCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - fromGroup: health-secrets
       - key: ENV
