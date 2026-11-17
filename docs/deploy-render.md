@@ -72,15 +72,24 @@ service:
 
 ## 6. Seed a policy and verify
 
-The agent needs at least one ingested policy to evaluate against. Run the ingestion CLI
-inside the worker — it has the DB connection and the embedder:
+The agent needs at least one ingested policy to evaluate against. The free tier has **no
+shell**, so ingest over HTTP — `POST /policies` accepts a PDF upload, chunks it by page,
+embeds it, and stores it. Generate the synthetic sample on your own machine, then upload:
 
 ```bash
-# Render Dashboard → health-worker → Shell
+# on your machine — build the synthetic policy PDF
 python data/make_sample_policy.py
-python -m app.ingestion.ingest_cli \
-  data/policies/sample-policy.pdf sample-policy policy-doc-1
+
+# upload it to the deployed API (multipart: policy_id, doc_id, file)
+curl -X POST https://health-api.onrender.com/policies \
+  -F policy_id=sample-policy \
+  -F doc_id=policy-doc-1 \
+  -F file=@data/policies/sample-policy.pdf
+# -> {"policy_id":"sample-policy","doc_id":"policy-doc-1","chunks":N}
 ```
+
+> The API process runs the embedding synchronously, so a very large PDF could approach
+> the request timeout. The synthetic sample is small; it returns in a second or two.
 
 Then submit a synthetic case against the public API and poll for the cited decision:
 

@@ -12,7 +12,9 @@ from typing import cast
 from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.agent.tools.ports import Embedder
 from app.db.base import SessionFactory
+from app.ingestion.embeddings import VoyageEmbedder
 from app.messaging.events import CaseEventPublisher
 from app.services.idempotency import IdempotencyGuard
 
@@ -20,6 +22,11 @@ from app.services.idempotency import IdempotencyGuard
 async def get_db() -> AsyncIterator[AsyncSession]:
     async with SessionFactory() as session:
         yield session
+
+
+def get_embedder() -> Embedder:
+    """The document-side embedder used to ingest policies. Overridden in tests."""
+    return VoyageEmbedder(input_type="document")
 
 
 def get_publisher(request: Request) -> CaseEventPublisher:

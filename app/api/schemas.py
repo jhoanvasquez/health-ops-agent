@@ -49,3 +49,11 @@ class CaseSummary(BaseModel):
 class ReviewRequest(BaseModel):
     decision: Outcome
     note: str = Field(default="", max_length=2000)
+
+
+class PolicyIngestedResponse(BaseModel):
+    """Result of ingesting a policy PDF."""
+
+    policy_id: str
+    doc_id: str
+    chunks: int
