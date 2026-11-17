@@ -28,10 +28,10 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
-    # Render injects $PORT; the Dockerfile CMD hardcodes 8000, so override it here.
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
-    # Migrations run after build, before the new version serves traffic.
-    preDeployCommand: alembic upgrade head
+    # Docker runtime overrides the image command with `dockerCommand` (not
+    # `startCommand`). Render injects $PORT. Free tier has no preDeployCommand, so
+    # migrations run here at startup — `alembic upgrade head` is idempotent.
+    dockerCommand: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - fromGroup: health-secrets
       - key: ENV
@@ -54,7 +54,7 @@ services:
     runtime: docker
     plan: free
     dockerfilePath: ./Dockerfile
-    startCommand: python -m app.workers.case_worker
+    dockerCommand: python -m app.workers.case_worker
     envVars:
       - fromGroup: health-secrets
       - key: ENV

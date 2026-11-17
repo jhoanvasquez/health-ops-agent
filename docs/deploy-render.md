@@ -46,13 +46,15 @@ them alone.
 
 ## 4. First deploy
 
-On apply, the API service runs its **pre-deploy step** — `alembic upgrade head` — which
-creates the schema (including `CREATE EXTENSION vector`) before the app serves traffic.
-Watch the deploy logs:
+On startup, the API container runs `alembic upgrade head` before `uvicorn` — this
+creates the schema (including `CREATE EXTENSION vector`) on every deploy (the migration
+is idempotent). The free tier has no separate pre-deploy step, so it lives in the start
+command. Watch the deploy logs:
 
 - `health-db` → healthy.
-- `health-api` → pre-deploy migrations succeed, then `/health` returns `200`.
+- `health-api` → migrations succeed, then `/health` returns `200`.
 - `health-worker` → connects to CloudAMQP and declares the topology (no crash loop).
+  It only touches the DB when a case arrives, by which point the API has migrated.
 
 If the worker crash-loops on the broker, re-check `RABBITMQ_URL` in `health-secrets`.
 
