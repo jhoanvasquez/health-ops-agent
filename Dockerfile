@@ -13,4 +13,8 @@ RUN pip install --upgrade pip && pip install -e .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command (used by the API on Render, which doesn't override it): apply
+# migrations, then serve. Exec-form `sh -c` keeps the shell inside the image, so the
+# `&&` is honored regardless of how the platform launches the container. $PORT is set
+# by Render; locally compose overrides this command entirely (see docker-compose.yml).
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
