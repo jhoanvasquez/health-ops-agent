@@ -1,0 +1,73 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-003",
+        "gender": "female",
+        "birthDate": "1972-03-22",
+        "name": [{ "family": "Synthetic", "given": ["Rosa"] }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-ra",
+        "subject": { "reference": "Patient/patient-003" },
+        "code": {
+          "text": "Moderate-to-severe rheumatoid arthritis",
+          "coding": [{ "system": "http://snomed.info/sct", "code": "69896004" }]
+        },
+        "onsetDateTime": "2023-02-14",
+        "clinicalStatus": { "text": "active" },
+        "note": [{ "text": "Diagnosed and managed by rheumatology; persistent polyarticular synovitis." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-methotrexate",
+        "subject": { "reference": "Patient/patient-003" },
+        "status": "completed",
+        "medicationCodeableConcept": { "text": "Methotrexate (conventional DMARD)" },
+        "effectivePeriod": { "start": "2024-03-01", "end": "2024-07-15" },
+        "note": [{ "text": "Trialed more than 3 months; inadequate response, ongoing active disease." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-leflunomide",
+        "subject": { "reference": "Patient/patient-003" },
+        "status": "completed",
+        "medicationCodeableConcept": { "text": "Leflunomide (conventional DMARD)" },
+        "effectivePeriod": { "start": "2024-08-01", "end": "2024-12-10" },
+        "note": [{ "text": "Trialed more than 3 months; inadequate response." }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-tb-screen",
+        "subject": { "reference": "Patient/patient-003" },
+        "status": "final",
+        "code": { "text": "Tuberculosis screening (QuantiFERON-TB Gold, interferon-gamma release assay)" },
+        "valueCodeableConcept": { "text": "Negative" },
+        "effectiveDateTime": "2026-09-15"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "req-adalimumab",
+        "subject": { "reference": "Patient/patient-003" },
+        "status": "active",
+        "intent": "order",
+        "code": { "text": "Adalimumab 40 mg subcutaneous every other week" },
+        "requester": { "display": "Rheumatology" }
+      }
+    }
+  ]
+}

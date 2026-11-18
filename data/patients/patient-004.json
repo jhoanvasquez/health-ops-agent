@@ -1,0 +1,63 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-004",
+        "gender": "male",
+        "birthDate": "1990-07-19",
+        "name": [{ "family": "Synthetic", "given": ["Mateo"] }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-osa",
+        "subject": { "reference": "Patient/patient-004" },
+        "code": {
+          "text": "Mild obstructive sleep apnea (suspected)",
+          "coding": [{ "system": "http://snomed.info/sct", "code": "78275009" }]
+        },
+        "onsetDateTime": "2026-08-01",
+        "clinicalStatus": { "text": "active" }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-ahi",
+        "subject": { "reference": "Patient/patient-004" },
+        "status": "final",
+        "code": { "text": "Apnea-Hypopnea Index (AHI), home sleep apnea test" },
+        "valueQuantity": { "value": 9, "unit": "events/hour" },
+        "effectiveDateTime": "2026-09-10"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-epworth",
+        "subject": { "reference": "Patient/patient-004" },
+        "status": "final",
+        "code": { "text": "Epworth Sleepiness Scale" },
+        "valueQuantity": { "value": 4, "unit": "score" },
+        "effectiveDateTime": "2026-09-10",
+        "note": [
+          { "text": "Score 4 of 24 is within the normal range; no excessive daytime sleepiness and no witnessed apneas reported. No hypertension or cardiovascular comorbidity on record." }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "req-cpap",
+        "subject": { "reference": "Patient/patient-004" },
+        "status": "active",
+        "intent": "order",
+        "code": { "text": "CPAP device for obstructive sleep apnea" }
+      }
+    }
+  ]
+}
