@@ -184,6 +184,8 @@ def test_review_records_decision() -> None:
     assert case.review_decision == "deny"
     assert case.review_note == "agree"
     assert case.reviewed_at is not None
+    # Must be tz-naive UTC: asyncpg rejects an aware datetime into the naive column.
+    assert case.reviewed_at.tzinfo is None
     assert session.committed
     assert any(getattr(obj, "tool", None) == "human_review" for obj in session.added)
 

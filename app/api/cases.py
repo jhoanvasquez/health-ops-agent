@@ -137,7 +137,9 @@ async def review_case(
     case.review_decision = body.decision
     case.review_note = body.note
     case.reviewer = _STUB_REVIEWER
-    case.reviewed_at = datetime.now(UTC)
+    # Store naive UTC to match the (timezone-naive) column, like created_at/updated_at.
+    # asyncpg rejects a tz-aware datetime into a TIMESTAMP WITHOUT TIME ZONE column.
+    case.reviewed_at = datetime.now(UTC).replace(tzinfo=None)
     session.add(
         AuditEntry(
             case_id=case.id,
