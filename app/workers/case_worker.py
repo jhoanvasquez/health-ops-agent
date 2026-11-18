@@ -13,7 +13,7 @@ import logging
 from uuid import UUID
 
 import aio_pika
-from aio_pika.abc import AbstractChannel, AbstractIncomingMessage
+from aio_pika.abc import AbstractChannel, AbstractIncomingMessage, AbstractRobustConnection
 
 from app.agent.tools.base import ToolContext
 from app.agent.tools.patient_repo import FilePatientRepository
@@ -82,7 +82,12 @@ async def _handle(message: AbstractIncomingMessage, channel: AbstractChannel) ->
     await message.ack()
 
 
-async def run_worker() -> None:
+async def start_consumer() -> AbstractRobustConnection:
+    """Begin consuming cases on a fresh connection; return it so the caller closes it.
+
+    Use this to co-host the worker inside another process (e.g. the API, when the
+    platform has no separate worker). For a standalone worker, use `run_worker`.
+    """
     connection = await aio_pika.connect_robust(settings.rabbitmq_url)
     channel = await connection.channel()
     await channel.set_qos(prefetch_count=1)
@@ -92,8 +97,16 @@ async def run_worker() -> None:
         await _handle(message, channel)
 
     await main_queue.consume(on_message)
-    logger.info("worker started, consuming %s", CASE_QUEUE)
-    await asyncio.Future()
+    logger.info("consumer started, consuming %s", CASE_QUEUE)
+    return connection
+
+
+async def run_worker() -> None:
+    connection = await start_consumer()
+    try:
+        await asyncio.Future()  # run forever
+    finally:
+        await connection.close()
 
 
 def main() -> None:

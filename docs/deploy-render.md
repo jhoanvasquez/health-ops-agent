@@ -26,14 +26,18 @@ The app's `aio_pika.connect_robust` speaks `amqps` (TLS) with no code change.
 
 1. Render Dashboard → **New** → **Blueprint**.
 2. Select this repository. Render reads `render.yaml` and shows the plan: `health-api`,
-   `health-worker`, `health-web`, `health-db` (Postgres 16), `health-redis`.
+   `health-web`, `health-db` (Postgres 16), `health-redis`.
 3. **Apply**. Render provisions the database and the Key Value store first, then builds
    the services.
+
+> **No separate worker.** Render's free tier has no background-worker service type, so
+> the API co-hosts the queue consumer in-process (`EMBED_WORKER=true`). On a paid plan,
+> flip it to `false` and add a dedicated `type: worker` service.
 
 ## 3. Enter the secrets (once)
 
 The three secrets live in the **`health-secrets`** env group — enter them one time and
-both the API and the worker pick them up:
+the API picks them up:
 
 | Key | Value |
 |---|---|
@@ -52,11 +56,12 @@ is idempotent). The free tier has no separate pre-deploy step, so it lives in th
 command. Watch the deploy logs:
 
 - `health-db` → healthy.
-- `health-api` → migrations succeed, then `/health` returns `200`.
-- `health-worker` → connects to CloudAMQP and declares the topology (no crash loop).
-  It only touches the DB when a case arrives, by which point the API has migrated.
+- `health-api` → migrations succeed, `/health` returns `200`, and the log shows
+  `consumer started, consuming cases.process` (the in-process worker connected to
+  CloudAMQP).
 
-If the worker crash-loops on the broker, re-check `RABBITMQ_URL` in `health-secrets`.
+If the log shows a broker connection error instead of `consumer started`, re-check
+`RABBITMQ_URL` in `health-secrets`.
 
 ## 5. Wire the cross-origin URLs
 

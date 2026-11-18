@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     env: str = "local"
     log_level: str = "INFO"
     cors_origins: list[str] = ["http://localhost:5173"]
+    # Co-host the queue consumer inside the API process. Off locally (a dedicated
+    # worker runs via compose); on where the platform has no separate worker process
+    # (e.g. Render's free tier, which does not offer background workers).
+    embed_worker: bool = False
 
     # LLM
     anthropic_api_key: str = Field(default="", repr=False)
