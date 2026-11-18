@@ -1,0 +1,60 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-002",
+        "gender": "male",
+        "birthDate": "1986-11-02",
+        "name": [{ "family": "Synthetic", "given": ["Sample"] }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-knee-oa",
+        "subject": { "reference": "Patient/patient-002" },
+        "code": {
+          "text": "Osteoarthritis of the left knee",
+          "coding": [{ "system": "http://snomed.info/sct", "code": "239873007" }]
+        },
+        "onsetDateTime": "2024-01-05",
+        "clinicalStatus": { "text": "active" }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "proc-physical-therapy",
+        "subject": { "reference": "Patient/patient-002" },
+        "status": "in-progress",
+        "code": { "text": "Physical therapy, left knee (2 weeks so far)" },
+        "performedPeriod": { "start": "2024-03-01", "end": "2024-03-14" },
+        "outcome": { "text": "Conservative therapy ongoing; only 2 weeks completed, below the required minimum" }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-pain-score",
+        "subject": { "reference": "Patient/patient-002" },
+        "status": "final",
+        "code": { "text": "Knee pain score (0-10)" },
+        "valueQuantity": { "value": 3, "unit": "score" },
+        "effectiveDateTime": "2024-03-18"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "req-mri-knee",
+        "subject": { "reference": "Patient/patient-002" },
+        "status": "active",
+        "intent": "order",
+        "code": { "text": "MRI of the left knee without contrast" }
+      }
+    }
+  ]
+}
