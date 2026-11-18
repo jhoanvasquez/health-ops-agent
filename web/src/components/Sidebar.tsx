@@ -42,14 +42,25 @@ function QueueItem({ summary, active, done, onSelect }: QueueItemProps) {
   );
 }
 
+type Tab = "review" | "chat";
+
 interface SidebarProps {
   pending: CaseSummary[];
   decided: CaseSummary[];
   selectedId: string | null;
   onSelect: (caseId: string) => void;
+  tab: Tab;
+  onTab: (tab: Tab) => void;
 }
 
-export default function Sidebar({ pending, decided, selectedId, onSelect }: SidebarProps) {
+export default function Sidebar({
+  pending,
+  decided,
+  selectedId,
+  onSelect,
+  tab,
+  onTab,
+}: SidebarProps) {
   return (
     <aside className="side">
       <div className="brand">
@@ -58,6 +69,25 @@ export default function Sidebar({ pending, decided, selectedId, onSelect }: Side
           <div className="name">Attest</div>
           <div className="sub">Prior-auth review</div>
         </div>
+      </div>
+
+      <div className="tabs" role="tablist" aria-label="Views">
+        <button
+          role="tab"
+          aria-selected={tab === "review"}
+          className={`tab${tab === "review" ? " on" : ""}`}
+          onClick={() => onTab("review")}
+        >
+          Review
+        </button>
+        <button
+          role="tab"
+          aria-selected={tab === "chat"}
+          className={`tab${tab === "chat" ? " on" : ""}`}
+          onClick={() => onTab("chat")}
+        >
+          Chat
+        </button>
       </div>
 
       <nav className="queue" aria-label="Review queue">

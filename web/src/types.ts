@@ -53,3 +53,24 @@ export interface ReviewRequest {
   decision: Outcome;
   note: string;
 }
+
+export interface Policy {
+  policy_id: string;
+  chunks: number;
+}
+
+export interface Patient {
+  patient_ref: string;
+  display_name: string;
+}
+
+export interface CaseCreated {
+  case_id: string;
+  state: CaseState;
+}
+
+export type ChatMessage =
+  | { id: string; kind: "user"; policyId: string; patientRef: string }
+  | { id: string; kind: "status"; text: string }
+  | { id: string; kind: "error"; text: string }
+  | { id: string; kind: "decision"; caseId: string; state: CaseState; packet: DecisionPacket | null };

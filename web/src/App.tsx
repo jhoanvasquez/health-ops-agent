@@ -2,9 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 
 import { getCase, listPendingReview, listRecentCases, submitReview } from "./api";
 import CaseView from "./components/CaseDetail";
+import ChatView from "./components/ChatView";
 import EmptyState from "./components/EmptyState";
 import Sidebar from "./components/Sidebar";
 import type { CaseDetail, CaseSummary, Outcome } from "./types";
+
+type Tab = "review" | "chat";
 
 export default function App() {
   const [pending, setPending] = useState<CaseSummary[]>([]);
@@ -13,6 +16,7 @@ export default function App() {
   const [detail, setDetail] = useState<CaseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>("review");
 
   const refreshQueue = useCallback(async (): Promise<CaseSummary[]> => {
     const [pendingCases, recent] = await Promise.all([listPendingReview(), listRecentCases()]);
@@ -53,11 +57,32 @@ export default function App() {
     [selectedId, refreshQueue],
   );
 
+  const openReview = useCallback(
+    (caseId: string): void => {
+      setTab("review");
+      setSelectedId(caseId);
+      void refreshQueue();
+    },
+    [refreshQueue],
+  );
+
   return (
     <div className="app">
-      <Sidebar pending={pending} decided={decided} selectedId={selectedId} onSelect={setSelectedId} />
+      <Sidebar
+        pending={pending}
+        decided={decided}
+        selectedId={selectedId}
+        onSelect={(id) => {
+          setTab("review");
+          setSelectedId(id);
+        }}
+        tab={tab}
+        onTab={setTab}
+      />
       <main className="main">
-        {detail ? (
+        {tab === "chat" ? (
+          <ChatView onOpenReview={openReview} />
+        ) : detail ? (
           <CaseView detail={detail} onReview={onReview} />
         ) : (
           <EmptyState error={error} loading={loading || selectedId !== null} />
