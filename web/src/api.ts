@@ -1,6 +1,7 @@
 import type { CaseDetail, CaseSummary, ReviewRequest } from "./types";
 
-const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+// Strip trailing slashes so a VITE_API_URL like "https://host/" never yields "//cases".
+const BASE = (import.meta.env.VITE_API_URL ?? "http://localhost:8000").replace(/\/+$/, "");
 
 async function asJson<T>(res: Response): Promise<T> {
   if (!res.ok) {
