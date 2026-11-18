@@ -92,7 +92,7 @@ export default function Sidebar({
 
       <nav className="queue" aria-label="Review queue">
         <div className="group-label">
-          Needs your review <span className="count">{pending.length}</span>
+          Needs your attention <span className="count">{pending.length}</span>
         </div>
         {pending.length === 0 ? (
           <div className="queue-empty">Nothing waiting — nice work.</div>

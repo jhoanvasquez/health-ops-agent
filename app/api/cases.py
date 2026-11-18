@@ -105,7 +105,12 @@ async def list_cases(
 ) -> list[CaseSummary]:
     stmt = select(Case)
     if pending_review:
-        stmt = stmt.where(Case.state == CaseState.needs_human, Case.review_decision.is_(None))
+        # Both states need a human: needs_human → review the decision; request_info →
+        # supply the missing information. Drop off once a human has recorded a decision.
+        stmt = stmt.where(
+            Case.state.in_([CaseState.needs_human, CaseState.request_info]),
+            Case.review_decision.is_(None),
+        )
     stmt = stmt.order_by(Case.created_at.desc()).limit(limit)
     result = await session.scalars(stmt)
     return [_to_summary(case) for case in result.all()]

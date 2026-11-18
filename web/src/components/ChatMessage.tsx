@@ -75,9 +75,9 @@ export default function ChatMessageView({ message, onOpenReview }: Props) {
           </p>
         )}
 
-        {state === "needs_human" ? (
+        {state === "needs_human" || state === "request_info" ? (
           <button className="btn ghost review-jump" onClick={() => onOpenReview(caseId)}>
-            Review this case →
+            {state === "request_info" ? "Open in the queue →" : "Review this case →"}
           </button>
         ) : null}
       </div>

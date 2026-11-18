@@ -121,10 +121,19 @@ async def test_low_confidence_escalates() -> None:
     assert result.state == "needs_human"
 
 
-async def test_request_info_outcome() -> None:
-    llm = FakeLLM([_search(), _decision("request_info", "low", None, None)])
+async def test_confident_request_info_is_terminal() -> None:
+    # A confident "we need more info" is a legitimate terminal outcome.
+    llm = FakeLLM([_search(), _decision("request_info", "high", None, None)])
     result = await _run(llm, passages=[PASSAGE])
     assert result.state == "request_info"
+
+
+async def test_low_confidence_request_info_escalates() -> None:
+    # Low confidence is a low-confidence case regardless of outcome — it must reach
+    # a human (non-negotiable), not sit as a terminal request_info.
+    llm = FakeLLM([_search(), _decision("request_info", "low", None, None)])
+    result = await _run(llm, passages=[PASSAGE])
+    assert result.state == "needs_human"
 
 
 async def test_max_steps_escalates() -> None:

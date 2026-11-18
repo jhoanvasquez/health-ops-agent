@@ -98,18 +98,20 @@ def _finalize(
     packet: DecisionPacket, pool: list[PolicyPassage], steps: list[AuditStep], usage: Usage
 ) -> HarnessResult:
     verified = verify_citations(packet, pool)
-    undetermined = any(v.met is None for v in verified.criteria)
-    if verified.outcome == "request_info":
+    # A *confident* request for more information is a legitimate terminal outcome.
+    # A low-confidence one is still a low-confidence case and must reach a human —
+    # non-negotiable: every denial and every low-confidence case gets human review.
+    if verified.outcome == "request_info" and not verified.needs_human:
         return HarnessResult(
             "request_info", verified, "agent requested more information", steps, usage
-        )
-    if undetermined:
-        return HarnessResult(
-            "needs_human", verified, "unsupported determination after citation check", steps, usage
         )
     if verified.needs_human:
         return HarnessResult(
             "needs_human", verified, "denial or low confidence requires human review", steps, usage
+        )
+    if any(v.met is None for v in verified.criteria):
+        return HarnessResult(
+            "needs_human", verified, "unsupported determination after citation check", steps, usage
         )
     return HarnessResult("decided", verified, "all criteria met and cited", steps, usage)
 
