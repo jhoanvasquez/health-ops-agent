@@ -9,6 +9,9 @@ WORKDIR /app
 # Install dependencies first for better layer caching.
 COPY pyproject.toml README.md alembic.ini ./
 COPY app ./app
+# Synthetic patient fixtures the agent reads at runtime (FilePatientRepository).
+# Only the committed patients dir — not the gitignored generated/policy data.
+COPY data/patients ./data/patients
 RUN pip install --upgrade pip && pip install -e .
 
 EXPOSE 8000
