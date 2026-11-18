@@ -5,6 +5,11 @@ harness, typed tools, an evaluation system, retry/dead-letter reliability, and a
 human review console. Every clinical claim is backed by a cited policy passage, and
 denials and low-confidence cases are always routed to a human.
 
+**Live demo:** [review console](https://health-web-xnz5.onrender.com) ·
+[API docs](https://health-api-86iy.onrender.com/docs)
+<sub>(hosted on Render's free tier — the first request after it's been idle can take
+~30–50s to wake)</sub>
+
 ---
 
 ## Architecture
@@ -119,6 +124,11 @@ The stack ships as a Render Blueprint ([`render.yaml`](render.yaml)) — API, ag
 worker, static review UI, managed Postgres + pgvector, and Key Value (Redis), with
 RabbitMQ on CloudAMQP. Migrations run on deploy; nothing secret lives in the repo. The
 step-by-step is in [`docs/deploy-render.md`](docs/deploy-render.md).
+
+It runs live at **[health-web-xnz5.onrender.com](https://health-web-xnz5.onrender.com)**
+(review console) and **[health-api-86iy.onrender.com](https://health-api-86iy.onrender.com/docs)**
+(API). On the free tier the single web service co-hosts the queue consumer in-process,
+since Render has no free background worker.
 
 ---
 
