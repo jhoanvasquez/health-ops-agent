@@ -15,11 +15,28 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, s
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agent.tools.ports import Embedder
+from app.agent.tools.stores import list_policies
 from app.api.deps import get_db, get_embedder
-from app.api.schemas import PolicyIngestedResponse
+from app.api.schemas import PolicyIngestedResponse, PolicySummary
 from app.ingestion.policy_pdf import ingest_policy
 
 router = APIRouter(prefix="/policies", tags=["policies"])
+
+
+@router.get("", response_model=list[PolicySummary])
+async def list_available_policies(
+    session: Annotated[AsyncSession, Depends(get_db)],
+) -> list[PolicySummary]:
+    """List the ingested policies a case can be opened against.
+
+    Returns one entry per distinct `policy_id` with its chunk count; an empty list
+    when nothing has been ingested.
+    """
+    return [
+        PolicySummary(policy_id=policy_id, chunks=chunks)
+        for policy_id, chunks in await list_policies(session)
+    ]
+
 
 # Browsers send application/pdf; some clients (curl without -H) send octet-stream.
 _PDF_CONTENT_TYPES = frozenset({"application/pdf", "application/octet-stream"})

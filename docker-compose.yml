@@ -16,6 +16,7 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/app/app
+      - ./data:/app/data  # the /patients endpoint reads the synthetic fixtures
     depends_on:
       migrate:
         condition: service_completed_successfully

@@ -57,3 +57,17 @@ class PolicyIngestedResponse(BaseModel):
     policy_id: str
     doc_id: str
     chunks: int
+
+
+class PolicySummary(BaseModel):
+    """An ingested policy the chat can open a case against."""
+
+    policy_id: str
+    chunks: int
+
+
+class PatientSummary(BaseModel):
+    """A synthetic patient the chat can open a case for."""
+
+    patient_ref: str
+    display_name: str

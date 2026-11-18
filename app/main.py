@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from redis.asyncio import Redis
 
 from app import __version__
-from app.api import cases, policies
+from app.api import cases, patients, policies
 from app.config import settings
 from app.messaging.events import RabbitPublisher
 from app.services.idempotency import RedisIdempotencyGuard
@@ -49,6 +49,7 @@ app.add_middleware(
 )
 app.include_router(cases.router)
 app.include_router(policies.router)
+app.include_router(patients.router)
 
 
 class HealthResponse(BaseModel):

@@ -6,11 +6,25 @@ the registry (and the description check) stay free of database imports.
 
 from __future__ import annotations
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agent.tools.ports import PolicyPassage
 from app.db.models import PolicyChunk
+
+
+async def list_policies(session: AsyncSession) -> list[tuple[str, int]]:
+    """Return `(policy_id, chunk_count)` for each ingested policy, ordered by id.
+
+    An empty list means nothing has been ingested yet.
+    """
+    stmt = (
+        select(PolicyChunk.policy_id, func.count())
+        .group_by(PolicyChunk.policy_id)
+        .order_by(PolicyChunk.policy_id)
+    )
+    rows = (await session.execute(stmt)).all()
+    return [(policy_id, count) for policy_id, count in rows]
 
 
 class PgPolicyStore:
